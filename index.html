@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WMS Shipment Receiving Process — Shipment 3137323</title>
+<meta name="description" content="Visual walkthrough of how the WMS receives, scans, and posts a 5-phone serialized shipment into the inventory ledger.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<a class="visually-hidden" href="#main">Skip to main content</a>
+
+<!-- =========================================================
+     STICKY HEADER: brand, high-level process nav, tech toggle
+     ========================================================= -->
+<header class="site-header">
+  <div class="wrap">
+    <div class="top-bar">
+      <div class="brand">
+        <span class="brand-mark">WMS</span>
+        <span>ECOTEC RECEIVING<br><small>Shipment 3137323</small></span>
+      </div>
+      <nav class="nav-track" aria-label="Process stages">
+        <button class="nav-btn" data-target="sec-asn" type="button">ASN File</button>
+        <span class="nav-sep">›</span>
+        <button class="nav-btn" data-target="sec-item" type="button">Item ID</button>
+        <span class="nav-sep">›</span>
+        <button class="nav-btn" data-target="sec-expected" type="button">Expected</button>
+        <span class="nav-sep">›</span>
+        <button class="nav-btn" data-target="sec-arrival" type="button">Receiving</button>
+        <span class="nav-sep">›</span>
+        <button class="nav-btn" data-target="sec-scanning" type="button">Scanning</button>
+        <span class="nav-sep">›</span>
+        <button class="nav-btn" data-target="sec-complete" type="button">Posting</button>
+        <span class="nav-sep">›</span>
+        <button class="nav-btn" data-target="sec-ledger" type="button">Ledger</button>
+        <span class="nav-sep">›</span>
+        <button class="nav-btn" data-target="sec-position" type="button">Current</button>
+      </nav>
+      <div class="tech-toggle">
+        <span>Technical details</span>
+        <button class="switch" id="techSwitch" type="button" role="switch" aria-checked="false" aria-label="Toggle technical database detail"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lifecycle rail: the persistent EXPECTED / RECEIVED / POSTED / CURRENT thread -->
+  <div class="lifecycle-rail" aria-hidden="true">
+    <div class="rail-track wrap">
+      <div class="rail-stage" data-stage="expected" style="--stage-color:#2454C7"><span class="dot"></span>Expected</div>
+      <span class="rail-arrow">→</span>
+      <div class="rail-stage" data-stage="received" style="--stage-color:#C2540A"><span class="dot"></span>Matched / Received</div>
+      <span class="rail-arrow">→</span>
+      <div class="rail-stage" data-stage="posted" style="--stage-color:#0B3B60"><span class="dot"></span>Posted</div>
+      <span class="rail-arrow">→</span>
+      <div class="rail-stage" data-stage="current" style="--stage-color:#0C7A72"><span class="dot"></span>Current</div>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- =========================================================
+       HERO + summary dashboard
+       ========================================================= -->
+  <div class="hero">
+    <div class="wrap">
+      <span class="eyebrow">● live database walkthrough</span>
+      <h1>WMS Shipment Receiving Process</h1>
+      <p class="hero-sub">Shipment <strong>3137323</strong> — 5 serialized phones, from ASN upload to a posted inventory ledger and a current warehouse position.</p>
+
+      <div class="process-track" role="list" aria-label="High-level process">
+        <div class="process-node" data-target="sec-asn" role="listitem"><span class="pn-index">01</span><span class="pn-label">ASN File</span></div>
+        <span class="process-arrow">→</span>
+        <div class="process-node" data-target="sec-item" role="listitem"><span class="pn-index">02</span><span class="pn-label">Item Identification</span></div>
+        <span class="process-arrow">→</span>
+        <div class="process-node" data-target="sec-expected" role="listitem"><span class="pn-index">03</span><span class="pn-label">Expected Shipment</span></div>
+        <span class="process-arrow">→</span>
+        <div class="process-node" data-target="sec-arrival" role="listitem"><span class="pn-index">04</span><span class="pn-label">Warehouse Receiving</span></div>
+        <span class="process-arrow">→</span>
+        <div class="process-node" data-target="sec-scanning" role="listitem"><span class="pn-index">05</span><span class="pn-label">Phone Scanning</span></div>
+        <span class="process-arrow">→</span>
+        <div class="process-node" data-target="sec-complete" role="listitem"><span class="pn-index">06</span><span class="pn-label">Receipt Posting</span></div>
+        <span class="process-arrow">→</span>
+        <div class="process-node" data-target="sec-ledger" role="listitem"><span class="pn-index">07</span><span class="pn-label">Inventory Ledger</span></div>
+        <span class="process-arrow">→</span>
+        <div class="process-node" data-target="sec-position" role="listitem"><span class="pn-index">08</span><span class="pn-label">Current Inventory</span></div>
+      </div>
+
+      <!-- Summary dashboard -->
+      <div class="summary-dashboard">
+        <div class="summary-head">
+          <h2>Shipment Summary</h2>
+          <span class="chip">RCPT-2026-00081</span>
+        </div>
+        <div class="summary-grid">
+          <div class="summary-cell"><span class="s-label">Shipment</span><span class="s-value">3137323</span></div>
+          <div class="summary-cell"><span class="s-label">Source File</span><span class="s-value">Shipment_3137323.xlsx</span></div>
+          <div class="summary-cell"><span class="s-label">Package</span><span class="s-value">1</span></div>
+          <div class="summary-cell"><span class="s-label">Phones Expected</span><span class="s-value">5</span></div>
+          <div class="summary-cell"><span class="s-label">Phones Received</span><span class="s-value">5</span></div>
+        </div>
+        <div class="summary-grid">
+          <div class="summary-cell"><span class="s-label">Missing</span><span class="s-value">0</span></div>
+          <div class="summary-cell"><span class="s-label">Unexpected</span><span class="s-value">0</span></div>
+          <div class="summary-cell"><span class="s-label">Final Status</span><span class="s-value status-posted">POSTED</span></div>
+          <div class="summary-cell"><span class="s-label">Current Location</span><span class="s-value">Receiving Cage – Bay 1</span></div>
+          <div class="summary-cell"><span class="s-label">Inventory State</span><span class="s-value status-quarantined">QUARANTINED</span></div>
+        </div>
+        <div class="summary-foot">
+          <div class="foot-metric"><b>EXPECTED ≠ RECEIVED ≠ POSTED</b></div>
+          <div class="foot-metric"><span>Each is a separate database fact — this page shows exactly where each one lives.</span></div>
+        </div>
+      </div>
+
+      <p class="sample-note">
+        <span class="badge badge-pk" style="position:relative;top:0">PK</span>
+        <span class="badge badge-fk">FK</span>
+        <span class="badge badge-system">SYSTEM</span>
+        <span class="badge badge-source">SOURCE</span>
+        <span class="badge badge-scan">SCAN</span>
+        <span class="badge badge-ledger">LEDGER</span>
+        <span class="badge badge-sample">SAMPLE</span>
+        &nbsp;— field badges used throughout. <b>SAMPLE</b> marks illustrative seed/config values (status codes, location codes) that your ERD defines the structure for but not the literal value.
+      </p>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       SECTION 1 — ASN FILE UPLOAD
+       ========================================================= -->
+  <section class="section theme-asn" id="sec-asn" data-nav-id="sec-asn" data-stage="expected">
+    <div class="wrap">
+      <div class="section-header">
+        <div class="section-eyebrow"><span class="num">1</span>ASN File Upload</div>
+        <h2 class="section-title">The vendor's Excel file becomes a validated batch</h2>
+        <p class="section-intro">One shipment, one package, five serialized phones — declared in <strong>Shipment_3137323.xlsx</strong> before anything physically arrives.</p>
+      </div>
+
+      <div class="file-card">
+        <div class="file-card-head">
+          <span class="file-icon">XLS</span>
+          <span class="file-name">Shipment_3137323.xlsx</span>
+          <span class="file-meta">5 rows · uploaded by USER-15</span>
+        </div>
+        <div style="overflow-x:auto">
+        <table class="file-table">
+          <thead><tr><th>Item ID</th><th>SKU</th><th>IMEI</th><th>Serial</th><th>Price</th></tr></thead>
+          <tbody id="asnFileRows"><!-- rendered by script.js --></tbody>
+        </table>
+        </div>
+      </div>
+
+      <div class="connector"><div class="arrow-line"></div><div class="arrow-head">▼</div><div class="fk-label">import_batch_id</div></div>
+
+      <div class="db-card theme-asn" style="max-width:520px;margin:0 auto 8px">
+        <div class="db-card-head">
+          <div class="db-card-title">ASN_IMPORT_BATCH</div>
+          <span class="status-chip chip-expected">VALIDATED <span class="tech-only">· SAMPLE</span></span>
+        </div>
+        <div class="db-card-body">
+          <div class="db-field"><div class="field-key"><span class="badge badge-pk tech-only">PK</span>import_batch_id</div><div class="field-value">8001</div></div>
+          <div class="db-field"><div class="field-key"><span class="badge badge-source tech-only">SRC</span>source_file_name</div><div class="field-value">Shipment_3137323.xlsx</div></div>
+          <div class="db-field"><div class="field-key"><span class="badge badge-system tech-only">SYS</span>imported_by</div><div class="field-value">USER-15</div></div>
+          <div class="db-field"><div class="field-key">imported_at</div><div class="field-value">2026-08-19 08:00</div></div>
+          <div class="db-field"><div class="field-key">total_rows / accepted / rejected</div><div class="field-value">5 / 5 / 0</div></div>
+        </div>
+      </div>
+
+      <div class="connector"><div class="arrow-line"></div><div class="arrow-head">▼</div><div class="fk-label">1 row = 1 expected phone</div></div>
+
+      <div class="db-card-grid" id="asnRowCards"><!-- 5x rendered by script.js --></div>
+
+      <div class="concept-banner">
+        <span class="cb-icon">📋</span>
+        <span><b>1 serialized ASN row = 1 expected serialized phone.</b> Five rows in, five individually trackable phones out — never an anonymous quantity of five.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       SECTION 2 — ITEM IDENTIFICATION
+       ========================================================= -->
+  <section class="section theme-item" id="sec-item" data-nav-id="sec-item" data-stage="expected">
+    <div class="wrap">
+      <div class="section-header">
+        <div class="section-eyebrow"><span class="num">2</span>Item Identification</div>
+        <h2 class="section-title">The vendor's item code is not your item code</h2>
+        <p class="section-intro">Shown here for <strong>Phone 1</strong> — the same lookup runs for all five rows.</p>
+      </div>
+
+      <div class="flow-vertical">
+        <div class="flow-node">ASN_IMPORT_ROW 8101 <span class="tech-only">· IID-01 / SKU-01</span></div>
+        <div class="connector"><div class="arrow-line"></div><div class="arrow-head">▼</div><div class="fk-label">external_item_id match</div></div>
+        <div class="flow-node">ITEM_EXTERNAL_REFERENCE 501</div>
+        <div class="connector"><div class="arrow-line"></div><div class="arrow-head">▼</div><div class="fk-label">item_id FK</div></div>
+        <div class="flow-node">ITEM_MASTER 1001</div>
+        <div class="connector"><div class="arrow-line"></div><div class="arrow-head">▼</div></div>
+        <div class="flow-node" style="background:var(--accent);color:#fff;border-color:var(--accent)">iPhone 15 128GB Black</div>
+      </div>
+
+      <div class="flow-branch" style="margin-top:28px">
+        <div class="db-card theme-ref ref-mini"><div class="db-card-body"><div class="ref-key">ITEM_CLASS</div><div class="ref-val">Core Device</div></div></div>
+        <div class="db-card theme-ref ref-mini"><div class="db-card-body"><div class="ref-key">BRAND</div><div class="ref-val">Apple</div></div></div>
+        <div class="db-card theme-ref ref-mini"><div class="db-card-body"><div class="ref-key">CATEGORY</div><div class="ref-val">Handset</div></div></div>
+        <div class="db-card theme-ref ref-mini"><div class="db-card-body"><div class="ref-key">TRACKING_METHOD</div><div class="ref-val">Serialized</div></div></div>
+        <div class="db-card theme-ref ref-mini"><div class="db-card-body"><div class="ref-key">UOM</div><div class="ref-val">Each</div></div></div>
+      </div>
+
+      <div class="compare-2" style="margin-top:36px">
+        <div class="compare-card">
+          <h3>ITEM_MASTER answers</h3>
+          <p class="cc-question">"What kind of phone is this?"</p>
+          <p style="color:var(--text-muted);font-size:13.5px">A type/product definition — iPhone 15 128GB Black. Shared by every unit of that exact model.</p>
+        </div>
+        <div class="compare-card">
+          <h3>ASSET_UNIT answers <span class="tech-only" style="font-weight:400;color:var(--text-faint)">(section 4)</span></h3>
+          <p class="cc-question">"Which exact physical phone is this?"</p>
+          <p style="color:var(--text-muted);font-size:13.5px">One specific device — Asset 9001, IMEI-01, SN-01. No two assets ever share an identifier.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       SECTION 3 — EXPECTED INBOUND SHIPMENT
+       ========================================================= -->
+  <section class="section theme-asn is-tinted" id="sec-expected" data-nav-id="sec-expected" data-stage="expected">
+    <div class="wrap">
+      <div class="section-header">
+        <div class="section-eyebrow"><span class="num">3</span>Expected Inbound Shipment</div>
+        <h2 class="section-title">The validated ASN becomes an operational shipment</h2>
+        <p class="section-intro">Five distinct SKUs mean five distinct items — so this shipment gets <strong>five separate lines</strong>, each expecting exactly one serialized unit.</p>
+      </div>
+
+      <div class="db-card theme-asn" style="max-width:560px;margin-bottom:28px">
+        <div class="db-card-head">
+          <div class="db-card-title">INBOUND_SHIPMENT 7001</div>
+          <span class="status-chip chip-expected">EXPECTED</span>
+        </div>
+        <div class="db-card-body">
+          <div class="db-field"><div class="field-key"><span class="badge badge-pk tech-only">PK</span>inbound_shipment_id</div><div class="field-value">7001</div></div>
+          <div class="db-field"><div class="field-key"><span class="badge badge-fk tech-only">FK</span>import_batch_id</div><div class="field-value">8001</div></div>
+          <div class="db-field"><div class="field-key">shipment_id / asn_no</div><div class="field-value">3137323 / ASN-3137323</div></div>
+          <div class="db-field"><div class="field-key">party_id</div><div class="field-value">CUSTOMER-001</div></div>
+          <div class="db-field"><div class="field-key">package_count / declared_qty</div><div class="field-value">1 / 5</div></div>
+          <div class="db-field"><div class="field-key">status_id</div><div class="field-value">EXPECTED</div></div>
+        </div>
+      </div>
+
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:18px">
+        <span class="badge badge-fk">FK</span> <code>INBOUND_SHIPMENT_LINE</code> ×5 (one per item, declared_qty = 1) →
+        <span class="badge badge-fk">FK</span> <code>INBOUND_SHIPMENT_ASSET</code> ×5 — the five expected serialized units below.
+      </p>
+
+      <div class="phone-selector" role="group" aria-label="Select a phone" style="margin-bottom:10px"></div>
+
+      <div class="phone-grid" id="expectedAssetCards"><!-- 5x rendered by script.js --></div>
+
+      <div class="counter-row">
+        <div class="counter"><div class="c-val">5</div><div class="c-lbl">Expected</div></div>
+        <div class="counter"><div class="c-val no">0</div><div class="c-lbl">Received</div></div>
+      </div>
+      <div class="concept-banner">
+        <span class="cb-icon">⏳</span>
+        <span>Dashed cards, <b>PENDING</b> status. These rows describe what the ASN claims — nothing has been scanned. No location, no inventory state, no ledger entry exists yet for any of these five assets.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       SECTION 4 — ASSET IDENTITY
+       ========================================================= -->
+  <section class="section theme-item" id="sec-identity" data-nav-id="sec-identity" data-stage="expected">
+    <div class="wrap">
+      <div class="section-header">
+        <div class="section-eyebrow"><span class="num">4</span>Asset Identity</div>
+        <h2 class="section-title">Item Master vs. Asset Unit</h2>
+        <p class="section-intro">Resolved at this expected-shipment stage — before any truck arrives — because each expected asset row requires a real physical-unit identity behind it.</p>
+      </div>
+
+      <div class="compare-2" style="margin-bottom:36px">
+        <div class="compare-card">
+          <h3>ITEM_MASTER</h3>
+          <div class="cc-value">iPhone 15 128GB Black</div>
+          <p class="cc-question">Product / type definition</p>
+        </div>
+        <div class="compare-card">
+          <h3>ASSET_UNIT 9001</h3>
+          <div class="cc-value mono">IMEI-01 · SN-01</div>
+          <p class="cc-question">One exact physical phone</p>
+        </div>
+      </div>
+
+      <div class="db-card-grid" id="assetIdentityCards"><!-- 5x rendered by script.js --></div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       SECTION 5 — DELIVERY ARRIVES
+       ========================================================= -->
+  <section class="section theme-receiving" id="sec-arrival" data-nav-id="sec-arrival" data-stage="expected">
+    <div class="wrap">
+      <div class="section-header">
+        <div class="section-eyebrow"><span class="num">5</span>Delivery Arrives at Warehouse</div>
+        <h2 class="section-title">From system expectation to physical dock</h2>
+      </div>
+
+      <div class="db-card theme-receiving" style="max-width:640px">
+        <div class="db-card-head">
+          <div class="db-card-title">🚚 Delivery — Shipment 3137323</div>
+        </div>
+        <div class="db-card-body">
+          <div class="db-field"><div class="field-key">shipment_id</div><div class="field-value">3137323</div></div>
+          <div class="db-field"><div class="field-key">package_count</div><div class="field-value">1</div></div>
+          <div class="db-field"><div class="field-key">expected phones</div><div class="field-value">5</div></div>
+          <div class="db-field"><div class="field-key">courier / tracking_no</div><div class="field-value">DHL / DHL-778812345</div></div>
+          <div class="db-field"><div class="field-key">actual_arrival_at</div><div class="field-value">2026-08-20 09:15</div></div>
+        </div>
+      </div>
+
+      <p style="margin:22px 0 0;font-size:14.5px;color:var(--text-muted);max-width:600px">
+        <b style="color:var(--text)">USER-22</b> searches <code>shipment_id = 3137323</code>. The system loads <code>INBOUND_SHIPMENT 7001</code> and pulls its five expected <code>INBOUND_SHIPMENT_ASSET</code> rows — that's how it knows <b>exactly 5</b> serialized phones are expected, not because of a generic count field, but because five individual rows exist.
+      </p>
+
+      <div class="counter-row">
+        <div class="counter"><div class="c-val">5</div><div class="c-lbl">Expected</div></div>
+        <div class="counter"><div class="c-val no">0</div><div class="c-lbl">Physically Received</div></div>
+        <div class="counter"><div class="c-val no">0</div><div class="c-lbl">Ledger Posted</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       SECTION 6 — RECEIPT CREATED
+       ========================================================= -->
+  <section class="section theme-receiving is-tinted" id="sec-receipt" data-nav-id="sec-receipt" data-stage="expected">
+    <div class="wrap">
+      <div class="section-header">
+        <div class="section-eyebrow"><span class="num">6</span>Receipt Created</div>
+        <h2 class="section-title">A receiving document — not the ledger, not yet</h2>
+      </div>
+
+      <div class="db-card theme-receiving" style="max-width:560px;margin-bottom:30px">
+        <div class="db-card-head">
+          <div class="db-card-title">RECEIPT 5001</div>
+          <span class="status-chip chip-pending">OPEN</span>
+        </div>
+        <div class="db-card-body">
+          <div class="db-field"><div class="field-key"><span class="badge badge-pk tech-only">PK</span>receipt_id</div><div class="field-value">5001</div></div>
+          <div class="db-field"><div class="field-key">receipt_no</div><div class="field-value">RCPT-2026-00081</div></div>
+          <div class="db-field"><div class="field-key"><span class="badge badge-fk tech-only">FK</span>inbound_shipment_id</div><div class="field-value">7001</div></div>
+          <div class="db-field"><div class="field-key"><span class="badge badge-system tech-only">SYS</span>received_by</div><div class="field-value">USER-22</div></div>
+          <div class="db-field"><div class="field-key">actual_arrival_at</div><div class="field-value">2026-08-20 09:15</div></div>
+          <div class="db-field"><div class="field-key">receiving_report_no</div><div class="field-value">GRN-2026-00081</div></div>
+        </div>
+      </div>
+
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px"><code>RECEIPT_LINE</code> — one row per expected item, before any scan:</p>
+      <div style="overflow-x:auto">
+      <table class="file-table" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md)">
+        <thead><tr><th>Line</th><th>Item</th><th>Declared</th><th>Actual</th><th>Status</th></tr></thead>
+        <tbody id="receiptLineRows"><!-- rendered by script.js --></tbody>
+      </table>
+      </div>
+
+      <div class="counter-row">
+        <div class="counter"><div class="c-val">5</div><div class="c-lbl">Expected</div></div>
+        <div class="counter"><div class="c-val no">0</div><div class="c-lbl">Received</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       SECTION 7 — PHONE SCANNING
+       ========================================================= -->
+  <section class="section theme-receiving" id="sec-scanning" data-nav-id="sec-scanning" data-stage="received">
+    <div class="wrap">
+      <div class="section-header">
+        <div class="section-eyebrow"><span class="num">7</span>Phone Scanning</div>
+        <h2 class="section-title">Each phone is confirmed individually</h2>
+        <p class="section-intro">Select a phone to replay its scan — six checks run every time, and every one must pass before a <code>RECEIPT_ASSET</code> row is written.</p>
+      </div>
+
+      <div class="phone-selector" role="group" aria-label="Select a phone to scan" style="margin-bottom:22px"></div>
+
+      <div class="scan-station">
+        <div class="scanner-label"><span class="dot-live"></span>SCAN IMEI / SERIAL</div>
+        <div class="scan-readout" id="scanReadout">—</div>
+
+        <div class="check-chain" id="checkChain"><!-- rendered by script.js --></div>
+
+        <div class="progress-shell">
+          <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+          <div class="progress-meta"><span>Phones matched</span><b id="progressText">0 / 5</b></div>
+        </div>
+
+        <div class="counter-row" id="scanCounters">
+          <div class="counter"><div class="c-val">5</div><div class="c-lbl">Expected</div></div>
+          <div class="counter"><div class="c-val" data-c="received">0</div><div class="c-lbl">Received</div></div>
+          <div class="counter"><div class="c-val no">0</div><div class="c-lbl">Missing</div></div>
+          <div class="counter"><div class="c-val no">0</div><div class="c-lbl">Unexpected</div></div>
+        </div>
+      </div>
+
+      <div id="scanReceiptAssetCard" style="max-width:480px;margin-top:26px"><!-- rendered by script.js --></div>
+
+      <div class="warn-banner">
+        <span>⚠️</span>
+        <span>All 5 phones physically received does <b>not</b> mean ledger posted. <code>RECEIPT.status_id</code> is still <code>OPEN</code> — no <code>INVENTORY_TRANSACTION</code> exists yet for any of them.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       SECTION 8 — COMPLETE RECEIPT (transition)
+       ========================================================= -->
+  <section class="section theme-success" id="sec-complete" data-nav-id="sec-complete" data-stage="posted">
+    <div class="wrap">
+      <div class="section-header">
+        <div class="section-eyebrow"><span class="num">8</span>Complete Receipt</div>
+        <h2 class="section-title">The exact moment receiving becomes ledger posting</h2>
+      </div>
+
+      <div style="display:flex;align-items:center;justify-content:center;gap:26px;flex-wrap:wrap;padding:30px 0">
+        <div class="db-card theme-receiving" style="min-width:200px">
+          <div class="db-card-head"><div class="db-card-title">RECEIPT 5001</div></div>
+          <div class="db-card-body">
+            <div class="db-field"><div class="field-key">status_id</div><div class="field-value"><span class="status-chip chip-pending" style="display:inline-block">OPEN</span></div></div>
+          </div>
+        </div>
+        <div style="text-align:center;color:var(--text-muted);font-size:13px;font-weight:700">
+          USER-22 clicks<br><span style="font-size:20px">COMPLETE RECEIPT</span><br>
+          <span style="font-size:22px;color:var(--c-success)">→</span>
+        </div>
+        <div class="db-card theme-success" style="min-width:200px">
+          <div class="db-card-head"><div class="db-card-title">RECEIPT 5001</div></div>
+          <div class="db-card-body">
+            <div class="db-field"><div class="field-key">status_id</div><div class="field-value"><span class="status-chip chip-posted" style="display:inline-block">POSTED</span></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="concept-banner">
+        <span class="cb-icon">🔁</span>
+        <span>Because <code>RECEIPT</code> has no header-level posting FK, completing this 5-line receipt doesn't write one ledger row — it triggers <b>five independent postings</b>, one per <code>RECEIPT_ASSET</code>.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       SECTION 9 — INVENTORY LEDGER
+       ========================================================= -->
+  <section class="section is-dark theme-ledger" id="sec-ledger" data-nav-id="sec-ledger" data-stage="posted">
+    <div class="wrap">
+      <div class="section-header">
+        <div class="section-eyebrow"><span class="num">9</span>Inventory Ledger</div>
+        <h2 class="section-title">Five transactions, five entries — strictly 1:1</h2>
+        <p class="section-intro"><code>INVENTORY_TRANSACTION</code> is <b>what event happened</b> (a warehouse receipt). <code>INVENTORY_ENTRY</code> is <b>what inventory actually changed</b>. Every entry's <code>transaction_id</code> is FK + UNIQUE — one entry per transaction, no exceptions.</p>
+      </div>
+
+      <div id="ledgerCards"><!-- 5x transaction+entry pairs rendered by script.js --></div>
+
+      <div class="concept-banner">
+        <span class="cb-icon">🔒</span>
+        <span><b>Ledger rule:</b> once POSTED, a transaction/entry pair is historical evidence. It is never edited directly — a correction uses a reversal transaction plus a new correct one. Ledger = history. Current Position = current answer.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       SECTION 10 — CURRENT POSITION
+       ========================================================= -->
+  <section class="section theme-current is-tinted" id="sec-position" data-nav-id="sec-position" data-stage="current">
+    <div class="wrap">
+      <div class="section-header">
+        <div class="section-eyebrow"><span class="num">10</span>Current Position</div>
+        <h2 class="section-title">ASSET_CURRENT_POSITION answers: "Where is this phone right now?"</h2>
+        <p class="section-intro">A fast, rebuildable projection — every posted <code>INVENTORY_ENTRY</code> updates it. Delete it and rebuild it from the ledger and you'd get the exact same rows.</p>
+      </div>
+
+      <div class="h-flow" style="margin-bottom:30px;justify-content:center">
+        <div class="flow-node">INVENTORY_ENTRY</div><span class="h-arrow">→</span>
+        <div class="flow-node" style="background:var(--accent-soft);border-color:var(--accent);color:var(--accent)">updates projection</div><span class="h-arrow">→</span>
+        <div class="flow-node">ASSET_CURRENT_POSITION</div>
+      </div>
+
+      <div class="db-card-grid" id="currentPositionCards"><!-- 5x rendered by script.js --></div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       SECTION 11 — INVENTORY BALANCE
+       ========================================================= -->
+  <section class="section theme-current" id="sec-balance" data-nav-id="sec-balance" data-stage="current">
+    <div class="wrap">
+      <div class="section-header">
+        <div class="section-eyebrow"><span class="num">11</span>Inventory Balance</div>
+        <h2 class="section-title">Three questions, three tables</h2>
+      </div>
+
+      <div class="compare-3" style="margin-bottom:36px">
+        <div class="compare-card">
+          <h3>ASSET_CURRENT_POSITION</h3>
+          <p class="cc-question">"Where is IMEI-01?"</p>
+        </div>
+        <div class="compare-card">
+          <h3>INVENTORY_BALANCE</h3>
+          <p class="cc-question">"How much of Item X do we have?"</p>
+        </div>
+        <div class="compare-card">
+          <h3>INVENTORY LEDGER</h3>
+          <p class="cc-question">"How did it get there?"</p>
+        </div>
+      </div>
+
+      <p style="font-size:13.5px;color:var(--text-muted);max-width:680px;margin-bottom:16px">
+        This shipment's 5 phones resolved to <b>5 different items</b> (Section 2), so they don't collapse into one balance row of quantity 5 — each item gets its own row, quantity 1. All five are <code>QUARANTINED</code>, and <code>INVENTORY_STATE.is_available = false</code> for that state, so <b>quantity_available = 0</b> even though 1 unit is on hand.
+      </p>
+
+      <div style="overflow-x:auto">
+      <table class="file-table" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md)">
+        <thead><tr><th>Balance ID</th><th>Item</th><th>State</th><th>On Hand</th><th>Reserved</th><th>Available</th></tr></thead>
+        <tbody id="balanceRows"><!-- rendered by script.js --></tbody>
+      </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       SECTION 12 — COMPLETE PHONE TRACE
+       ========================================================= -->
+  <section class="section theme-ref is-tinted" id="sec-trace" data-nav-id="sec-trace" data-stage="current">
+    <div class="wrap">
+      <div class="section-header">
+        <div class="section-eyebrow"><span class="num">12</span>Complete Trace</div>
+        <h2 class="section-title">Trace one phone from Excel to warehouse</h2>
+        <p class="section-intro">Currently tracing <b id="traceActivePhone">Phone 1</b> — pick a different phone below and the trace rebuilds with its real IDs.</p>
+      </div>
+
+      <div class="phone-selector" role="group" aria-label="Select a phone to trace" style="margin-bottom:26px"></div>
+
+      <div class="trace-flow" id="traceFlow"><!-- rendered by script.js --></div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       SECTION 13 — ALL 5 PHONES FINAL STATE
+       ========================================================= -->
+  <section class="section theme-ref" id="sec-final-table" data-nav-id="sec-final-table" data-stage="current">
+    <div class="wrap">
+      <div class="section-header">
+        <div class="section-eyebrow"><span class="num">13</span>Final State</div>
+        <h2 class="section-title">All 5 phones, side by side</h2>
+      </div>
+
+      <div class="final-table-wrap">
+        <table class="final-table">
+          <thead><tr>
+            <th>Phone</th><th>ASN Row</th><th>Asset</th><th>IMEI</th><th>Serial</th>
+            <th>Receipt Asset</th><th>Transaction</th><th>Entry</th><th>Location</th><th>State</th>
+          </tr></thead>
+          <tbody id="finalTableRows"><!-- rendered by script.js --></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       FINAL SUMMARY
+       ========================================================= -->
+  <section class="section" style="padding-bottom:80px">
+    <div class="wrap">
+      <div class="final-summary">
+        <h2>Shipment 3137323 — Complete</h2>
+        <div class="final-metrics">
+          <div><div class="fm-value">5</div><div class="fm-label">Expected</div></div>
+          <div><div class="fm-value">5</div><div class="fm-label">Received</div></div>
+          <div><div class="fm-value">5</div><div class="fm-label">Ledger Posted</div></div>
+          <div><div class="fm-value zero">0</div><div class="fm-label">Missing</div></div>
+          <div><div class="fm-value zero">0</div><div class="fm-label">Unexpected</div></div>
+        </div>
+        <div class="final-state">
+          <span>📍 Receiving Cage – Bay 1</span>
+          <span>🔒 QUARANTINED</span>
+        </div>
+        <div class="final-checklist">
+          <div class="fc-item"><span class="fc-check">✓</span>ASN validated</div>
+          <div class="fc-item"><span class="fc-check">✓</span>Item mapping resolved</div>
+          <div class="fc-item"><span class="fc-check">✓</span>Expected shipment created</div>
+          <div class="fc-item"><span class="fc-check">✓</span>Physical receiving complete</div>
+          <div class="fc-item"><span class="fc-check">✓</span>5 phones matched</div>
+          <div class="fc-item"><span class="fc-check">✓</span>Receipt posted</div>
+          <div class="fc-item"><span class="fc-check">✓</span>Ledger written</div>
+          <div class="fc-item"><span class="fc-check">✓</span>Current position updated</div>
+        </div>
+      </div>
+      <p style="text-align:center;color:var(--text-faint);font-size:12px;margin-top:26px">
+        Stops here by design — no IQC, triage, MRB, disposition, transfer, or adjustment. Source: <code>SHIPMENT_PROCESS_Continued_Shipment_3137323.md</code>
+      </p>
+    </div>
+  </section>
+
+</main>
+
+<script src="script.js"></script>
+</body>
+</html>
