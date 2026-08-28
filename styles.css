@@ -839,3 +839,143 @@ body.tech-mode .tech-only.grid{ display:grid; }
   .report-meta{ grid-template-columns:1fr 1fr; }
   .role-flow-node{ min-width:170px; }
 }
+
+
+/* =========================================================================
+   DETAILED ASN → RECEIVING → INVENTORY SCENARIO
+   ========================================================================= */
+.scenario-story{display:flex;flex-direction:column;gap:0;max-width:980px;margin:0 auto}
+.story-step{display:grid;grid-template-columns:48px 1fr;gap:20px;padding:24px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm)}
+.story-step--expected{border-left:4px solid var(--c-asn)}
+.story-step--posted{border-left:4px solid var(--c-success)}
+.story-step--trace{border-left:4px solid var(--c-current)}
+.story-index{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--c-ledger);color:#fff;font-family:var(--font-mono);font-weight:800;font-size:12px}
+.story-kicker{display:block;margin-bottom:5px;color:var(--accent);font-family:var(--font-mono);font-size:10.5px;font-weight:800;letter-spacing:.7px}
+.story-step h3{font-size:19px;font-weight:800;margin-bottom:7px}
+.story-step p{color:var(--text-muted);line-height:1.65}
+.story-step code{font-size:12px;background:var(--c-ref-soft);padding:2px 5px;border-radius:4px}
+.story-arrow{text-align:center;height:42px;display:flex;align-items:center;justify-content:center;color:var(--c-ledger);font-size:22px;font-weight:800}
+.story-table-wrap{overflow-x:auto;margin-top:17px;border:1px solid var(--border);border-radius:10px}
+.story-table{width:100%;border-collapse:collapse;min-width:640px;background:var(--surface)}
+.story-table th,.story-table td{padding:10px 12px;border-bottom:1px solid var(--border);text-align:left;font-size:12.5px}
+.story-table th{background:var(--surface-sunken);color:var(--text-faint);text-transform:uppercase;letter-spacing:.4px;font-size:10.5px;font-weight:800}
+.story-table tr:last-child td{border-bottom:none}
+.story-table td:first-child{font-weight:700}
+.story-code{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.story-code span{padding:8px 11px;border-radius:8px;background:var(--c-asn-soft);color:var(--c-asn);font-family:var(--font-mono);font-size:11.5px;font-weight:600}
+.metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:17px}
+.metric-grid>div{padding:13px 12px;border:1px solid var(--border);border-radius:10px;background:var(--surface-sunken)}
+.metric-grid b{display:block;font-family:var(--font-mono);font-size:16px;margin-bottom:2px}
+.metric-grid span{display:block;color:var(--text-muted);font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.3px}
+.metric-grid--posted b{color:var(--c-success)}
+.trace-chain{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-top:17px}
+.trace-chain span{padding:8px 10px;border-radius:7px;background:var(--c-current-soft);color:var(--c-current);font-family:var(--font-mono);font-size:10.5px;font-weight:700}
+.trace-chain i{font-style:normal;color:var(--text-faint);font-weight:800}
+.rule-banner{margin:28px auto 0;max-width:980px;padding:18px 22px;background:var(--c-ledger-soft);border:1px solid #C9D9E7;border-radius:var(--radius-md);color:var(--c-ledger);line-height:1.65}
+.rule-banner strong{font-family:var(--font-mono);text-transform:uppercase;font-size:11px;letter-spacing:.5px;margin-right:7px}
+.scenario-list{margin-top:12px;padding-left:18px;list-style:disc}
+.scenario-list li{margin:7px 0;color:var(--text-muted);font-size:13px}
+.scenario-list b{color:var(--text)}
+.scenario-compare{max-width:980px;margin:22px auto 0}
+.scenario-note{margin:0 0 24px}
+.scenario-note code{font-size:12px;background:var(--c-ref-soft);padding:2px 5px;border-radius:4px}
+@media (max-width:760px){
+  .story-step{grid-template-columns:38px 1fr;gap:13px;padding:18px}
+  .story-step h3{font-size:17px}
+  .metric-grid{grid-template-columns:repeat(2,1fr)}
+  .trace-chain span{font-size:9.5px}
+}
+
+
+/* =========================================================================
+   MASTER DATA + 10 PHONE / 500 PART SCENARIO
+   ========================================================================= */
+.master-db-intro{
+  display:flex;flex-direction:column;gap:5px;margin-bottom:18px;padding:16px 18px;
+  border:1px solid var(--border);border-radius:var(--radius-md);background:var(--surface);
+}
+.master-db-intro span{color:var(--text-muted);font-size:13px;line-height:1.6}
+.master-db-grid-wrap{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.master-db-card{border:1px solid var(--border);border-radius:var(--radius-lg);background:var(--surface);overflow:hidden;box-shadow:var(--shadow-sm)}
+.master-db-head{display:flex;justify-content:space-between;align-items:center;padding:13px 16px;background:var(--surface-sunken);border-bottom:1px solid var(--border)}
+.master-db-head strong{font-family:var(--font-mono);font-size:12px}
+.master-db-head span{font-size:9.5px;font-weight:800;letter-spacing:.5px;color:var(--text-faint)}
+.master-db-grid{display:grid;grid-template-columns:1fr 1fr}
+.master-db-grid>div{padding:9px 12px;border-bottom:1px solid var(--border);min-width:0}
+.master-db-grid>div:nth-child(odd){border-right:1px solid var(--border)}
+.master-db-grid span{display:block;font-family:var(--font-mono);font-size:9.5px;color:var(--text-faint);margin-bottom:3px}
+.master-db-grid b{display:block;font-size:12px;line-height:1.35;overflow-wrap:anywhere}
+.master-primary .master-db-head{border-left:3px solid var(--c-ledger)}
+.master-product .master-db-head{border-left:3px solid var(--c-success)}
+.master-ref-strip{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.master-ref-strip span{padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface);font-size:11px;color:var(--text-muted)}
+.master-ref-strip b{font-family:var(--font-mono);font-size:9px;color:var(--text-faint);margin-right:5px}
+.asn-quantity-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0}
+.asn-quantity-summary>div{padding:14px;border:1px solid var(--border);border-radius:10px;background:var(--surface)}
+.asn-quantity-summary b{display:block;font-family:var(--font-mono);font-size:18px}
+.asn-quantity-summary span{font-size:10.5px;text-transform:uppercase;font-weight:700;color:var(--text-muted)}
+.part-card{border-left:3px solid var(--c-success)}
+@media(max-width:760px){
+  .master-db-grid-wrap{grid-template-columns:1fr}
+  .asn-quantity-summary{grid-template-columns:1fr}
+}
+
+
+/* Multi-file / multi-model walkthrough */
+.two-file-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:22px}
+.two-batch-grid{grid-template-columns:1fr 1fr}
+.file-card-foot{padding:10px 16px;background:var(--surface-sunken);border-top:1px solid var(--border);font-size:11.5px;color:var(--text-muted)}
+.master-table-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);overflow:hidden;margin-top:18px}
+.master-table-head{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:14px 17px;background:var(--surface-sunken);border-bottom:1px solid var(--border)}
+.master-table-head strong{font-family:var(--font-mono);font-size:12px;letter-spacing:.3px}
+.master-table-head span{font-size:10.5px;font-weight:800;color:var(--text-faint);text-transform:uppercase}
+.master-table-scroll{overflow:auto}
+.master-data-table{width:100%;border-collapse:collapse;min-width:960px}
+.master-data-table th,.master-data-table td{padding:9px 11px;border-bottom:1px solid var(--border);font-size:11.5px;text-align:left;white-space:nowrap}
+.master-data-table th{background:#fbfcfd;color:var(--text-faint);font-size:9.5px;text-transform:uppercase;letter-spacing:.4px}
+.master-data-table td{font-family:var(--font-mono)}
+.master-data-table tr:last-child td{border-bottom:none}
+.inventory-mix-summary{display:grid;grid-template-columns:1.6fr 1fr 1fr;gap:14px;margin:0 0 20px}
+.mix-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:var(--shadow-sm)}
+.mix-head{display:flex;justify-content:space-between;gap:8px;align-items:center;padding:11px 13px;background:var(--surface-sunken);border-bottom:1px solid var(--border)}
+.mix-head strong{font-size:11px;letter-spacing:.4px}
+.mix-head span{font-size:10px;color:var(--text-faint);text-align:right}
+.mix-label{font-size:9.5px;font-weight:800;color:var(--text-faint);letter-spacing:.5px;text-transform:uppercase;padding:10px 12px 0}
+.mix-grid{display:flex;flex-wrap:wrap;gap:8px;padding:10px 12px 12px}
+.mix-chip{min-width:76px;padding:8px 9px;background:var(--surface-sunken);border:1px solid var(--border);border-radius:9px;text-align:center}
+.mix-chip b{display:block;font-family:var(--font-mono);font-size:15px}
+.mix-chip span{display:block;color:var(--text-muted);font-size:9.5px;margin-top:2px;line-height:1.25}
+@media(max-width:850px){.two-file-grid,.inventory-mix-summary{grid-template-columns:1fr}.two-batch-grid{grid-template-columns:1fr}.master-data-table{min-width:900px}}
+
+/* Final multi-model dashboard enhancements */
+.two-file-grid{grid-template-columns:1fr 1fr}
+.two-batch-grid{grid-template-columns:1fr 1fr}
+.master-table-card{margin-top:18px}
+@media(max-width:850px){.two-file-grid,.two-batch-grid,.inventory-mix-summary{grid-template-columns:1fr}}
+
+/* Disposition lifecycle: report -> request -> decision -> action */
+.disposition-timeline{display:flex;align-items:stretch;justify-content:center;gap:10px;margin:18px 0 0;flex-wrap:wrap}
+.dt-step{min-width:180px;flex:1;max-width:230px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:13px 14px;display:grid;grid-template-columns:28px 1fr;column-gap:9px;box-shadow:var(--shadow-sm)}
+.dt-step>b{grid-row:span 2;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--c-ledger);color:#fff;font-family:var(--font-mono);font-size:11px}
+.dt-step>span{font-size:12px;font-weight:800;line-height:1.2}
+.dt-step>small{grid-column:2;color:var(--text-muted);font-size:10.5px;line-height:1.35;margin-top:3px}
+.dt-arrow{display:flex;align-items:center;justify-content:center;color:var(--text-faint);font-weight:800}
+.disposition-history-note{margin-top:14px}
+@media(max-width:850px){.dt-arrow{display:none}.dt-step{max-width:none}}
+
+/* =========================================================================
+   ASN → PENDING INVENTORY TRANSACTION LEDGER
+   ========================================================================= */
+.ledger-preview-banner{
+  margin-top:20px;
+}
+#asnPendingLedgerPreview{
+  margin-top:16px;
+}
+.ledger-lifecycle-note{
+  margin-top:20px;
+}
+.status-chip.chip-closed{
+  background:#EDEFF2;
+  color:#5B6472;
+}
